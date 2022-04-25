@@ -1,26 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.c                                            :+:      :+:    :+:   */
+/*   ft_philo.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/21 13:04:50 by frrusso           #+#    #+#             */
-/*   Updated: 2022/04/21 13:04:54 by frrusso          ###   ########.fr       */
+/*   Created: 2022/04/25 13:06:38 by frrusso           #+#    #+#             */
+/*   Updated: 2022/04/25 13:06:52 by frrusso          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	philo(int ac, unsigned int	*argv)
+t_philo	*ft_philo_new(void)
 {
-	int		i;
-	t_philo	*p;
+	static int	i = 0;
+	t_philo		*res;
 
-	i = -1;
-	while (++i < ac - 1)
-		printf("[%u]\n", argv[i]);
-	p = ft_philo_new();
-	printf("%i - %p\n", p->order, p->next);
-	ft_philo_free(p);
+	res = malloc(sizeof(t_philo));
+	if (!res)
+		return (NULL);
+	i++;
+	res->order = i;
+	res->next = NULL;
+	return (res);
+}
+
+void	ft_philo_free(t_philo *p)
+{
+	t_philo	*tmp;
+
+	tmp = p->next;
+	while (tmp)
+	{
+		free(p);
+		p = tmp;
+		tmp = p->next;
+	}
+	free(p);
 }
