@@ -12,15 +12,49 @@
 
 #include "philo.h"
 
-void	philo(int ac, unsigned int	*argv)
+void	ft_exit_philo(unsigned int *argv, t_philo *phi)
 {
-	int		i;
-	t_philo	*p;
+	free(argv);
+	ft_philo_free(phi);
+	ft_putstr_fd("Error : struct init fail\n", 2);
+	exit(EXIT_FAILURE);
+}
 
-	i = -1;
-	while (++i < ac - 1)
-		printf("[%u]\n", argv[i]);
-	p = ft_philo_new();
-	printf("%i - %p\n", p->order, p->next);
-	ft_philo_free(p);
+void	philo_join(t_philo *phi)
+{
+	t_philo	*tmp;
+
+	tmp = phi->next;
+	while (tmp)
+	{
+		pthread_join(phi->thread, NULL);
+		phi = tmp;
+		tmp = tmp->next;
+	}
+	pthread_join(phi->thread, NULL);
+}
+
+void	philo(int ac, unsigned int *argv)
+{
+	unsigned int	i;
+	t_philo			*phi;
+	t_philo			*tmp;
+
+	i = 0;
+	while (i < (unsigned int)ac - 1)
+		printf("[%u]\n", argv[i++]);
+	phi = ft_philo_new(argv);
+	if (!phi)
+		ft_exit_philo(argv, phi);
+	tmp = phi;
+	i = 0;
+	while (++i < argv[0])
+	{
+		tmp->next = ft_philo_new(argv);
+		if (!tmp->next)
+			ft_exit_philo(argv, phi);
+		tmp = tmp->next;
+	}
+	philo_join(phi);
+	ft_philo_free(phi);
 }

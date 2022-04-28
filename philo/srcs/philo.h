@@ -17,14 +17,17 @@
 # include <string.h>// memset
 # include <stdio.h>// printf
 # include <sys/time.h>// gettimeofday
-# include <threads.h>// pthread_create pthread_detach pthread_join
+# include <pthread.h>// pthread_create pthread_detach pthread_join
+// pthread_mutex_init pthread_mutex_destroy
+// pthread_mutex_lock pthread_mutex_unlock
 
 # define ERR_ARGC "Usage : ./philo philosophers die eat sleep [times]\n"
 # define ERR_UINT "All your arguments must be between 0 and 4294967295\n"
 
 typedef struct s_philo
 {
-	thrd_t			thread;
+	pthread_t		thread;
+	pthread_mutex_t	fork_r;
 	unsigned int	order;
 	struct s_philo	*next;
 }					t_philo;
@@ -32,13 +35,14 @@ typedef struct s_philo
 // ft_is_uint.c	3 functions
 int		ft_is_uint(int ac, char **av);
 
-// ft_philo		2 functions
-t_philo	*ft_philo_new(void);
+// ft_philo		3 functions
+t_philo	*ft_philo_new(unsigned int *argv);
 void	ft_philo_free(t_philo *p);
 
-// philo.c		1 functions
+// philo.c		3 functions
 void	philo(int ac, unsigned int	*argv);
 
 // main.c		5 functions
+int		ft_write_fd(char *str, int fd);
 
 #endif

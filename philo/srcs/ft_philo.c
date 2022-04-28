@@ -12,10 +12,21 @@
 
 #include "philo.h"
 
-t_philo	*ft_philo_new(void)
+void	*ft_start_routine(void *arg)
 {
-	static int	i = 0;
-	t_philo		*res;
+	static unsigned int	i = 0;
+	unsigned int		*argv;
+
+	argv = (unsigned int *)arg;
+	i++;
+	printf("thread%i\n", i);
+	return (EXIT_SUCCESS);
+}
+
+t_philo	*ft_philo_new(unsigned int *argv)
+{
+	static unsigned int	i = 0;
+	t_philo				*res;
 
 	res = malloc(sizeof(t_philo));
 	if (!res)
@@ -23,6 +34,13 @@ t_philo	*ft_philo_new(void)
 	i++;
 	res->order = i;
 	res->next = NULL;
+	if (pthread_mutex_init(&res->fork_r, NULL) != 0)
+	{
+		free(res);
+		ft_putstr_fd("Error : mutex init fail\n", 2);
+		return (NULL);
+	}
+	pthread_create(&res->thread, NULL, ft_start_routine, &argv);
 	return (res);
 }
 

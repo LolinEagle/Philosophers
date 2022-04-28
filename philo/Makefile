@@ -23,7 +23,7 @@ OBJS	= 	${SRCS:.c=.o}
 
 ${NAME}:${OBJS}
 	${MAKE} -C libft
-	${CC} ${FLAGS} ${OBJS} ${LIBFT} -o ${NAME} -lpthread
+	${CC} ${FLAGS} ${OBJS} ${LIBFT} -pthread -o ${NAME}
 
 all:${NAME}
 

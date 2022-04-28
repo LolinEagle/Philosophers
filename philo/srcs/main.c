@@ -67,7 +67,7 @@ int	main(int ac, char **av)
 		return (ft_write_fd(ERR_UINT, 1));
 	argv = ft_argv_init(ac, av);
 	if (!argv)
-		return (ft_write_fd("Error : malloc in ft_argv_init", 2));
+		return (ft_write_fd("Error : malloc in ft_argv_init\n", 2));
 	if (argv[0] == 0)
 		return (ft_free_argv(argv));
 	philo(ac, argv);
