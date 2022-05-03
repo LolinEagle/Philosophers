@@ -29,19 +29,21 @@ typedef struct s_philo
 	pthread_t		thread;
 	pthread_mutex_t	fork_l;
 	pthread_mutex_t	fork_r;
-	unsigned int	order;
+	int				ac;
 	unsigned int	*argv;
+	unsigned int	order;
 	struct s_philo	*next;
 }					t_philo;
 
 // ft_is_uint.c	3 functions
 int		ft_is_uint(int ac, char **av);
 
-// ft_philo		5 functions
+// threads.c	3 functions
 void	*ft_start_routine(void *arg);
-t_philo	*ft_philo_new(unsigned int *argv, pthread_mutex_t *fork_l);
-t_philo	*ft_philo_new_last(
-			unsigned int *argv, pthread_mutex_t fork_l, pthread_mutex_t fork_r);
+
+// ft_philo.c	3 functions
+t_philo	*ft_philo_new_first(int ac, unsigned int *argv);
+t_philo	*ft_philo_new(int ac, unsigned int *argv, pthread_mutex_t fork_l);
 void	ft_philo_free(t_philo *p);
 
 // philo.c		5 functions

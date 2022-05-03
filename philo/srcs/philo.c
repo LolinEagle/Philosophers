@@ -20,27 +20,25 @@ void	ft_exit_philo(unsigned int *argv, t_philo *phi)
 	exit(EXIT_FAILURE);
 }
 
-t_philo	*philo_init(unsigned int *argv)
+t_philo	*philo_init(int ac, unsigned int *argv)
 {
 	unsigned int	i;
 	t_philo			*phi;
 	t_philo			*tmp;
 
-	phi = ft_philo_new(argv, NULL);
+	phi = ft_philo_new_first(ac, argv);
 	if (!phi)
 		ft_exit_philo(argv, phi);
 	tmp = phi;
-	i = 1;
+	i = 0;
 	while (++i < argv[0])
 	{
-		tmp->next = ft_philo_new(argv, &tmp->fork_r);
+		tmp->next = ft_philo_new(ac, argv, tmp->fork_r);
 		if (!tmp->next)
 			ft_exit_philo(argv, phi);
 		tmp = tmp->next;
 	}
-	tmp->next = ft_philo_new_last(argv, tmp->fork_r, phi->fork_l);
-	if (!tmp->next)
-		ft_exit_philo(argv, phi);
+	phi->fork_l = tmp->fork_r;
 	return (phi);
 }
 
@@ -74,13 +72,9 @@ void	philo_join(t_philo *phi)
 
 void	philo(int ac, unsigned int *argv)
 {
-	int		i;
 	t_philo	*phi;
 
-	i = 0;
-	while (i < ac - 1)
-		printf("[%u]\n", argv[i++]);
-	phi = philo_init(argv);
+	phi = philo_init(ac, argv);
 	philo_create(phi);
 	philo_join(phi);
 	ft_philo_free(phi);

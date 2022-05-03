@@ -15,7 +15,7 @@ RM		=	rm -f
 FLAGS	=	-Wall -Wextra -Werror
 NAME	=	philo
 LIBFT	= 	libft/libft.a
-SRCS	= 	${addprefix srcs/, ft_is_uint.c ft_philo.c philo.c main.c}
+SRCS	= 	${addprefix srcs/, ft_is_uint.c ft_philo.c philo.c main.c threads.c}
 OBJS	= 	${SRCS:.c=.o}
 
 .c.o:
