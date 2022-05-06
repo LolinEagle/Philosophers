@@ -26,19 +26,19 @@ t_philo	*philo_init(int ac, unsigned int *argv)
 	t_philo			*phi;
 	t_philo			*tmp;
 
-	phi = ft_philo_new_first(ac, argv);
+	phi = ft_philo_new(ac, argv, NULL);
 	if (!phi)
 		ft_exit_philo(argv, phi);
 	tmp = phi;
 	i = 0;
 	while (++i < argv[0])
 	{
-		tmp->next = ft_philo_new(ac, argv, tmp->fork_r);
+		tmp->next = ft_philo_new(ac, argv, tmp);
 		if (!tmp->next)
 			ft_exit_philo(argv, phi);
 		tmp = tmp->next;
 	}
-	phi->fork_l = tmp->fork_r;
+	phi->prev = tmp;
 	return (phi);
 }
 

@@ -12,36 +12,15 @@
 
 #include "philo.h"
 
-t_philo	*ft_philo_new_first(int ac, unsigned int *argv)
+t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev)
 {
+	static unsigned int	i = 0;
 	t_philo				*res;
 
 	res = malloc(sizeof(t_philo));
 	if (!res)
 		return (NULL);
-	if (pthread_mutex_init(&res->fork_r, NULL) != 0)
-	{
-		free(res);
-		ft_putstr_fd("Error : mutex init fail\n", 2);
-		return (NULL);
-	}
-	res->order = 1;
-	res->ac = ac;
-	res->argv = argv;
-	res->next = NULL;
-	return (res);
-}
-
-t_philo	*ft_philo_new(int ac, unsigned int *argv, pthread_mutex_t fork_r)
-{
-	static unsigned int	i = 1;
-	t_philo				*res;
-
-	res = malloc(sizeof(t_philo));
-	if (!res)
-		return (NULL);
-	res->fork_l = fork_r;
-	if (pthread_mutex_init(&res->fork_r, NULL) != 0)
+	if (pthread_mutex_init(&res->fork, NULL) != 0)
 	{
 		free(res);
 		ft_putstr_fd("Error : mutex init fail\n", 2);
@@ -51,6 +30,7 @@ t_philo	*ft_philo_new(int ac, unsigned int *argv, pthread_mutex_t fork_r)
 	res->order = i;
 	res->ac = ac;
 	res->argv = argv;
+	res->prev = prev;
 	res->next = NULL;
 	return (res);
 }
