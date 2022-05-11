@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev)
+t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev, int *die)
 {
 	static unsigned int	i = 0;
 	t_philo				*res;
@@ -28,6 +28,7 @@ t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev)
 	}
 	i++;
 	res->order = i;
+	res->die = die;
 	res->ac = ac;
 	res->argv = argv;
 	res->prev = prev;
@@ -39,12 +40,15 @@ void	ft_philo_free(t_philo *p)
 {
 	t_philo	*tmp;
 
+	free(p->die);
 	tmp = p->next;
 	while (tmp)
 	{
+		pthread_mutex_destroy(&p->fork);
 		free(p);
 		p = tmp;
 		tmp = p->next;
 	}
+	pthread_mutex_destroy(&p->fork);
 	free(p);
 }

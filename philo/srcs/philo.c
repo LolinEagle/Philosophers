@@ -12,9 +12,10 @@
 
 #include "philo.h"
 
-void	ft_exit_philo(unsigned int *argv, t_philo *phi)
+void	ft_exit_philo(unsigned int *argv, t_philo *phi, int *die)
 {
 	free(argv);
+	free(die);
 	ft_philo_free(phi);
 	ft_putstr_fd("Error : struct init fail\n", 2);
 	exit(EXIT_FAILURE);
@@ -23,19 +24,24 @@ void	ft_exit_philo(unsigned int *argv, t_philo *phi)
 t_philo	*philo_init(int ac, unsigned int *argv)
 {
 	unsigned int	i;
+	int				*die;
 	t_philo			*phi;
 	t_philo			*tmp;
 
-	phi = ft_philo_new(ac, argv, NULL);
+	die = malloc(sizeof(int) * 1);
+	if (!die)
+		ft_exit_philo(argv, NULL, die);
+	*die = 0;
+	phi = ft_philo_new(ac, argv, NULL, die);
 	if (!phi)
-		ft_exit_philo(argv, phi);
+		ft_exit_philo(argv, phi, die);
 	tmp = phi;
 	i = 0;
 	while (++i < argv[0])
 	{
-		tmp->next = ft_philo_new(ac, argv, tmp);
+		tmp->next = ft_philo_new(ac, argv, tmp, die);
 		if (!tmp->next)
-			ft_exit_philo(argv, phi);
+			ft_exit_philo(argv, phi, die);
 		tmp = tmp->next;
 	}
 	phi->prev = tmp;

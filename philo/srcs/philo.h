@@ -28,6 +28,7 @@ typedef struct s_philo
 {
 	pthread_t		thread;
 	pthread_mutex_t	fork;
+	int				*die;
 	int				ac;
 	unsigned int	*argv;
 	unsigned int	order;
@@ -38,11 +39,11 @@ typedef struct s_philo
 // ft_is_uint.c	3 functions
 int		ft_is_uint(int ac, char **av);
 
-// threads.c	3 functions
+// threads.c	5 functions
 void	*ft_start_routine(void *arg);
 
 // ft_philo.c	2 functions
-t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev);
+t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev, int *die);
 void	ft_philo_free(t_philo *p);
 
 // philo.c		5 functions
