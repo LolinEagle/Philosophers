@@ -28,6 +28,7 @@ typedef struct s_philo
 {
 	pthread_t		thread;
 	pthread_mutex_t	fork;
+	pthread_mutex_t	*log;
 	int				*die;
 	int				ac;
 	unsigned int	*argv;
@@ -36,18 +37,29 @@ typedef struct s_philo
 	struct s_philo	*next;
 }					t_philo;
 
+typedef struct s_data
+{
+	pthread_mutex_t	*log;
+	int				*die;
+	int				ac;
+	unsigned int	*argv;
+}					t_data;
+
 // ft_is_uint.c	3 functions
-int		ft_is_uint(int ac, char **av);
+int				ft_is_uint(int ac, char **av);
 
 // threads.c	5 functions
-void	*ft_start_routine(void *arg);
+unsigned int	ft_get_time(struct timeval time);
+void			*ft_start_routine(void *arg);
 
-// ft_philo.c	2 functions
-t_philo	*ft_philo_new(int ac, unsigned int *argv, t_philo *prev, int *die);
-void	ft_philo_free(t_philo *p);
+// ft_philo.c	4 functions
+t_data			*ft_data_new(int ac, unsigned int *argv);
+t_philo			*ft_philo_new(t_data *data, t_philo *prev);
+void			ft_philo_free(t_philo *p);
+int				ft_log(char *str, t_philo *phi, struct timeval time);
 
 // philo.c		5 functions
-void	philo(int ac, unsigned int	*argv);
+void			philo(int ac, unsigned int	*argv);
 
 // main.c		5 functions
 
