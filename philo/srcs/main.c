@@ -54,7 +54,7 @@ unsigned int	*ft_argv_init(int ac, char **av)
 int	ft_free_argv(unsigned int *argv)
 {
 	free(argv);
-	return (ft_write_fd("Need at less two philosophers\n", 1));
+	return (ft_write_fd("Need at less one philosophers\n", 1));
 }
 
 int	main(int ac, char **av)
@@ -68,7 +68,7 @@ int	main(int ac, char **av)
 	argv = ft_argv_init(ac, av);
 	if (!argv)
 		return (ft_write_fd("Error : malloc in ft_argv_init\n", 2));
-	if (argv[0] == 0 || argv[0] == 1)
+	if (argv[0] == 0)
 		return (ft_free_argv(argv));
 	philo(ac, argv);
 	free(argv);

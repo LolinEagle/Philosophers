@@ -44,7 +44,8 @@ t_philo	*philo_init(int ac, unsigned int *argv)
 			ft_exit_philo(argv, phi, die);
 		tmp = tmp->next;
 	}
-	phi->prev = tmp;
+	if (argv[0] != 1)
+		phi->prev = tmp;
 	return (phi);
 }
 

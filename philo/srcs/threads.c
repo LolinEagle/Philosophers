@@ -29,14 +29,26 @@ int	ft_fork(t_philo *phi, struct timeval time)
 	if (*phi->die == 1)
 		return (1);
 	printf("%u %i is thinking\n", ft_get_time(time), phi->order);
-	pthread_mutex_lock(&phi->fork);
-	if (*phi->die == 1)
-		return (1);
-	printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
+	if (phi->order % 2 == 1)
+	{
+		pthread_mutex_lock(&phi->fork);
+		if (*phi->die == 1)
+			return (1);
+		printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
+	}
+	if (phi->prev == NULL)
+		return (0);
 	pthread_mutex_lock(&phi->prev->fork);
 	if (*phi->die == 1)
 		return (1);
 	printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
+	if (phi->order % 2 == 0)
+	{
+		pthread_mutex_lock(&phi->fork);
+		if (*phi->die == 1)
+			return (1);
+		printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
+	}
 	return (0);
 }
 
@@ -45,7 +57,7 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 	unsigned int	i;
 
 	i = ft_get_time(last);
-	if (i > phi->argv[1])
+	if (i > phi->argv[1] || phi->prev == NULL)
 	{
 		*phi->die = 1;
 		printf("%u %i died\n", i, phi->order);
@@ -66,7 +78,7 @@ void	ft_philo_mutex_unlock(t_philo *p, unsigned int argv)
 	static int		unloked = 0;
 	t_philo			*tmp;
 
-	if (unloked)
+	if (unloked || p->prev == NULL)
 		return ;
 	tmp = p->prev;
 	i = 0;
@@ -83,6 +95,7 @@ void	ft_philo_mutex_unlock(t_philo *p, unsigned int argv)
 
 void	*ft_start_routine(void *arg)
 {
+	unsigned int	i;
 	t_philo			*phi;
 	struct timeval	time;
 	struct timeval	last;
@@ -90,7 +103,8 @@ void	*ft_start_routine(void *arg)
 	phi = arg;
 	gettimeofday(&time, NULL);
 	gettimeofday(&last, NULL);
-	while (phi->ac == 5)
+	i = 0;
+	while (phi->ac == 5 || i < phi->argv[4])
 	{
 		if (ft_fork(phi, time))
 			break ;
@@ -101,6 +115,7 @@ void	*ft_start_routine(void *arg)
 			break ;
 		printf("%u %i is sleeping\n", ft_get_time(time), phi->order);
 		usleep(phi->argv[3] * 1000);
+		i++;
 	}
 	ft_philo_mutex_unlock(phi, phi->argv[0]);
 	return (EXIT_SUCCESS);
