@@ -61,11 +61,8 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 		pthread_mutex_unlock(phi->log);
 		return (1);
 	}
-	pthread_mutex_lock(phi->log);
-	if (*phi->die == 1)
+	if (ft_log("%u %i is eating\n", phi, time))
 		return (1);
-	printf("%u %i is eating\n", ft_get_time(time), phi->order);
-	pthread_mutex_unlock(phi->log);
 	usleep(phi->argv[2] * 1000);
 	pthread_mutex_unlock(&phi->fork);
 	pthread_mutex_unlock(&phi->prev->fork);
@@ -111,11 +108,8 @@ void	*ft_start_routine(void *arg)
 		if (ft_eat(phi, time, last))
 			break ;
 		gettimeofday(&last, NULL);
-		pthread_mutex_lock(phi->log);
-		if (*phi->die == 1)
+		if (ft_log("%u %i is sleeping\n", phi, time))
 			break ;
-		printf("%u %i is sleeping\n", ft_get_time(time), phi->order);
-		pthread_mutex_unlock(phi->log);
 		usleep(phi->argv[3] * 1000);
 	}
 	ft_philo_mutex_unlock(phi, phi->argv[0]);

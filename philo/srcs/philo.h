@@ -52,7 +52,7 @@ int				ft_is_uint(int ac, char **av);
 unsigned int	ft_get_time(struct timeval time);
 void			*ft_start_routine(void *arg);
 
-// ft_philo.c	4 functions
+// ft_philo.c	5 functions
 t_data			*ft_data_new(int ac, unsigned int *argv);
 t_philo			*ft_philo_new(t_data *data, t_philo *prev);
 void			ft_philo_free(t_philo *p);

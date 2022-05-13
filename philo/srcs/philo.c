@@ -12,17 +12,6 @@
 
 #include "philo.h"
 
-// void	ft_print_struct(t_philo *phi)
-// {
-// 	printf("phi->log=%p\n", phi->log);
-// 	printf("phi->die=%p\n", phi->die);
-// 	printf("phi->ac=%i\n", phi->ac);
-// 	printf("phi->argv[0]=%i\n", phi->argv[0]);
-// 	printf("phi->order=%u\n", phi->order);
-// 	printf("phi->prev=%p\n", phi->prev);
-// 	printf("phi->next=%p\n--------------------------------------\n", phi->next);
-// }
-
 void	ft_exit_philo(t_data *data, t_philo *phi)
 {
 	if (data)
