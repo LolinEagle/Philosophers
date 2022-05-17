@@ -24,8 +24,8 @@ int	ft_fork_deadlock(t_philo *phi, struct timeval time, int bol)
 			pthread_mutex_unlock(&phi->fork);
 			return (1);
 		}
-		pthread_mutex_unlock(phi->log);
 		phi->lock[phi->order - 1] = 1;
+		pthread_mutex_unlock(phi->log);
 		if (ft_log("%u %i has taken a fork\n", phi, time))
 			return (1);
 	}
@@ -48,8 +48,8 @@ int	ft_fork(t_philo *phi, struct timeval time)
 		pthread_mutex_unlock(&phi->prev->fork);
 		return (1);
 	}
-	pthread_mutex_unlock(phi->log);
 	phi->lock[phi->prev->order - 1] = 1;
+	pthread_mutex_unlock(phi->log);
 	if (ft_log("%u %i has taken a fork\n", phi, time))
 		return (1);
 	if (ft_fork_deadlock(phi, time, 0))
@@ -62,49 +62,52 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 	unsigned int	i;
 
 	i = ft_get_time(last);
+	pthread_mutex_lock(phi->log);
 	if (i > phi->argv[1] || phi->prev == NULL)
 	{
-		pthread_mutex_lock(phi->log);
 		*phi->die = 1;
 		printf("%u %i died\n", i, phi->order);
 		pthread_mutex_unlock(phi->log);
 		return (1);
 	}
+	pthread_mutex_unlock(phi->log);
 	if (ft_log("%u %i is eating\n", phi, time))
 		return (1);
 	usleep(phi->argv[2] * 1000);
+	pthread_mutex_lock(phi->log);
 	phi->lock[phi->order - 1] = 0;
 	phi->lock[phi->prev->order - 1] = 0;
+	pthread_mutex_unlock(phi->log);
 	pthread_mutex_unlock(&phi->fork);
 	pthread_mutex_unlock(&phi->prev->fork);
 	return (0);
 }
 
-void	ft_philo_mutex_unlock(t_philo *p, unsigned int argv)
+void	ft_philo_mutex_unlock(t_philo *phi, unsigned int argv)
 {
 	unsigned int	i;
 	static int		unloked = 0;
 	t_philo			*tmp;
 
-	pthread_mutex_lock(p->log);
-	if (unloked || p->prev == NULL)
+	pthread_mutex_lock(phi->log);
+	if (unloked || phi->prev == NULL)
 	{
-		pthread_mutex_unlock(p->log);
+		pthread_mutex_unlock(phi->log);
 		return ;
 	}
-	*p->die = 1;
+	*phi->die = 1;
 	unloked = 1;
-	tmp = p->prev;
+	tmp = phi->prev;
 	i = 0;
 	while (i < argv)
 	{
-		if (p->lock[p->order - 1] == 1)
-			pthread_mutex_unlock(&p->fork);
-		p = tmp;
-		tmp = p->prev;
+		if (phi->lock[phi->order - 1] == 1)
+			pthread_mutex_unlock(&phi->fork);
+		phi = tmp;
+		tmp = phi->prev;
 		i++;
 	}
-	pthread_mutex_unlock(p->log);
+	pthread_mutex_unlock(phi->log);
 }
 
 void	*ft_start_routine(void *arg)
