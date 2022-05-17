@@ -12,18 +12,22 @@
 
 #include "philo.h"
 
-t_data	*ft_data_new_free(int *die, t_data *res)
+t_data	*ft_data_new_free(unsigned int *die, unsigned int *lock, t_data *res)
 {
-	free(die);
+	if (die)
+		free(die);
+	if (lock)
+		free(lock);
 	free(res);
-	ft_putstr_fd("Error : mutex init fail\n", 2);
+	ft_putstr_fd("Error : ft_data_new fail\n", 2);
 	return (NULL);
 }
 
 t_data	*ft_data_new(int ac, unsigned int *argv)
 {
 	pthread_mutex_t	*log;
-	int				*die;
+	unsigned int	*die;
+	unsigned int	*lock;
 	t_data			*res;
 
 	res = malloc(sizeof(t_data));
@@ -31,18 +35,20 @@ t_data	*ft_data_new(int ac, unsigned int *argv)
 		return (NULL);
 	die = malloc(sizeof(int));
 	if (!die)
-	{
-		free(res);
-		return (NULL);
-	}
+		return (ft_data_new_free(NULL, NULL, res));
 	*die = 0;
+	lock = malloc(sizeof(unsigned int) * argv[0]);
+	if (!lock)
+		return (ft_data_new_free(die, NULL, res));
+	lock = memset(lock, 0, argv[0]);
 	log = malloc(sizeof(pthread_mutex_t));
 	if (!log || pthread_mutex_init(log, NULL) != 0)
-		return (ft_data_new_free(die, res));
+		return (ft_data_new_free(die, lock, res));
 	res->log = log;
 	res->die = die;
 	res->ac = ac;
 	res->argv = argv;
+	res->lock = lock;
 	return (res);
 }
 
@@ -64,6 +70,7 @@ t_philo	*ft_philo_new(t_data *data, t_philo *prev)
 	res->die = data->die;
 	res->ac = data->ac;
 	res->argv = data->argv;
+	res->lock = data->lock;
 	i++;
 	res->order = i;
 	res->prev = prev;
@@ -78,6 +85,7 @@ void	ft_philo_free(t_philo *p)
 	pthread_mutex_destroy(p->log);
 	free(p->log);
 	free(p->die);
+	free(p->lock);
 	tmp = p->next;
 	while (tmp)
 	{

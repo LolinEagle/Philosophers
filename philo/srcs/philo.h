@@ -30,9 +30,10 @@ typedef struct s_philo
 	pthread_t		thread;
 	pthread_mutex_t	fork;
 	pthread_mutex_t	*log;
-	int				*die;
+	unsigned int	*die;
 	int				ac;
 	unsigned int	*argv;
+	unsigned int	*lock;
 	unsigned int	order;
 	struct s_philo	*prev;
 	struct s_philo	*next;
@@ -41,9 +42,10 @@ typedef struct s_philo
 typedef struct s_data
 {
 	pthread_mutex_t	*log;
-	int				*die;
+	unsigned int	*die;
 	int				ac;
 	unsigned int	*argv;
+	unsigned int	*lock;
 }					t_data;
 
 // libft.c		4 functions
@@ -52,11 +54,11 @@ int				ft_space(char c);
 size_t			ft_strlen(const char *s);
 void			ft_putstr_fd(char *s, int fd);
 
-// ft_is_uint.c	3 functions
+// libphilo.c	4 functions
 int				ft_is_uint(int ac, char **av);
+unsigned int	ft_get_time(struct timeval time);
 
 // threads.c	5 functions
-unsigned int	ft_get_time(struct timeval time);
 void			*ft_start_routine(void *arg);
 
 // struct.c		5 functions
