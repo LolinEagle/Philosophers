@@ -14,25 +14,21 @@ CC		=	cc
 RM		=	rm -f
 FLAGS	=	-Wall -Wextra -Werror
 NAME	=	philo
-LIBFT	= 	libft/libft.a
-SRCS	= 	${addprefix srcs/, ft_is_uint.c ft_philo.c philo.c main.c threads.c}
+SRCS	=	${addprefix srcs/, libft.c libphilo.c struct.c philo.c main.c threads.c}
 OBJS	= 	${SRCS:.c=.o}
 
 .c.o:
 	${CC} ${FLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}:${OBJS}
-	${MAKE} -C libft
 	${CC} ${FLAGS} ${OBJS} ${LIBFT} -pthread -o ${NAME}
 
 all:${NAME}
 
 clean:
-	${MAKE} clean -C libft
 	${RM} ${OBJS}
 
 fclean:clean
-	${MAKE} fclean -C libft
 	${RM} ${NAME}
 
 re:fclean all

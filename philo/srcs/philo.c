@@ -12,11 +12,17 @@
 
 #include "philo.h"
 
-void	ft_exit_philo(unsigned int *argv, t_philo *phi, int *die)
+void	ft_exit_philo(t_data *data, t_philo *phi)
 {
-	free(argv);
-	free(die);
-	ft_philo_free(phi);
+	if (data)
+	{
+		pthread_mutex_destroy(data->log);
+		free(data->argv);
+		free(data->die);
+		free(data);
+	}
+	if (phi)
+		ft_philo_free(phi);
 	ft_putstr_fd("Error : struct init fail\n", 2);
 	exit(EXIT_FAILURE);
 }
@@ -24,28 +30,28 @@ void	ft_exit_philo(unsigned int *argv, t_philo *phi, int *die)
 t_philo	*philo_init(int ac, unsigned int *argv)
 {
 	unsigned int	i;
-	int				*die;
 	t_philo			*phi;
 	t_philo			*tmp;
+	t_data			*data;
 
-	die = malloc(sizeof(int) * 1);
-	if (!die)
-		ft_exit_philo(argv, NULL, die);
-	*die = 0;
-	phi = ft_philo_new(ac, argv, NULL, die);
+	data = ft_data_new(ac, argv);
+	if (!data)
+		ft_exit_philo(data, NULL);
+	phi = ft_philo_new(data, NULL);
 	if (!phi)
-		ft_exit_philo(argv, phi, die);
+		ft_exit_philo(data, phi);
 	tmp = phi;
 	i = 0;
 	while (++i < argv[0])
 	{
-		tmp->next = ft_philo_new(ac, argv, tmp, die);
+		tmp->next = ft_philo_new(data, tmp);
 		if (!tmp->next)
-			ft_exit_philo(argv, phi, die);
+			ft_exit_philo(data, phi);
 		tmp = tmp->next;
 	}
 	if (argv[0] != 1)
 		phi->prev = tmp;
+	free(data);
 	return (phi);
 }
 

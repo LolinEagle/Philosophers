@@ -12,43 +12,48 @@
 
 #include "philo.h"
 
-unsigned int	ft_get_time(struct timeval time)
+int	ft_fork_deadlock(t_philo *phi, struct timeval time, int bol)
 {
-	unsigned int	sec;
-	int				usec;
-	struct timeval	new;
-
-	gettimeofday(&new, NULL);
-	sec = new.tv_sec - time.tv_sec;
-	usec = new.tv_usec - time.tv_usec;
-	return (((sec * 1000000) + usec) / 1000);
+	if (phi->order % 2 == bol)
+	{
+		pthread_mutex_lock(&phi->fork);
+		pthread_mutex_lock(phi->log);
+		if (*phi->die == 1)
+		{
+			pthread_mutex_unlock(phi->log);
+			pthread_mutex_unlock(&phi->fork);
+			return (1);
+		}
+		phi->lock[0] = 1;
+		pthread_mutex_unlock(phi->log);
+		if (ft_log("%u %i has taken a fork\n", phi, time))
+			return (1);
+	}
+	return (0);
 }
 
 int	ft_fork(t_philo *phi, struct timeval time)
 {
-	if (*phi->die == 1)
-		return (1);
-	printf("%u %i is thinking\n", ft_get_time(time), phi->order);
-	if (phi->order % 2 == 1)
-	{
-		pthread_mutex_lock(&phi->fork);
-		if (*phi->die == 1)
-			return (1);
-		printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
-	}
 	if (phi->prev == NULL)
 		return (0);
-	pthread_mutex_lock(&phi->prev->fork);
-	if (*phi->die == 1)
+	if (ft_log("%u %i is thinking\n", phi, time))
 		return (1);
-	printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
-	if (phi->order % 2 == 0)
+	if (ft_fork_deadlock(phi, time, 1))
+		return (1);
+	pthread_mutex_lock(&phi->prev->fork);
+	pthread_mutex_lock(phi->log);
+	if (*phi->die == 1)
 	{
-		pthread_mutex_lock(&phi->fork);
-		if (*phi->die == 1)
-			return (1);
-		printf("%u %i has taken a fork\n", ft_get_time(time), phi->order);
+		pthread_mutex_unlock(phi->log);
+		pthread_mutex_unlock(&phi->prev->fork);
+		return (1);
 	}
+	phi->lock[1] = 1;
+	pthread_mutex_unlock(phi->log);
+	if (ft_log("%u %i has taken a fork\n", phi, time))
+		return (1);
+	if (ft_fork_deadlock(phi, time, 0))
+		return (1);
 	return (0);
 }
 
@@ -57,40 +62,41 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 	unsigned int	i;
 
 	i = ft_get_time(last);
-	if (i > phi->argv[1] || phi->prev == NULL)
+	pthread_mutex_lock(phi->log);
+	if ((i > phi->argv[1] || phi->prev == NULL) && *phi->die == 0)
 	{
 		*phi->die = 1;
 		printf("%u %i died\n", i, phi->order);
+		pthread_mutex_unlock(phi->log);
 		return (1);
 	}
-	if (*phi->die == 1)
+	pthread_mutex_unlock(phi->log);
+	if (ft_log("%u %i is eating\n", phi, time))
 		return (1);
-	printf("%u %i is eating\n", ft_get_time(time), phi->order);
 	usleep(phi->argv[2] * 1000);
+	pthread_mutex_lock(phi->log);
+	phi->lock[0] = 0;
+	phi->lock[1] = 0;
+	pthread_mutex_unlock(phi->log);
 	pthread_mutex_unlock(&phi->fork);
 	pthread_mutex_unlock(&phi->prev->fork);
 	return (0);
 }
 
-void	ft_philo_mutex_unlock(t_philo *p, unsigned int argv)
+void	ft_philo_mutex_unlock(t_philo *phi)
 {
-	unsigned int	i;
-	static int		unloked = 0;
-	t_philo			*tmp;
-
-	if (unloked || p->prev == NULL)
-		return ;
-	tmp = p->prev;
-	i = 0;
-	while (i < argv)
+	pthread_mutex_lock(phi->log);
+	if (phi->prev == NULL)
 	{
-		pthread_mutex_unlock(&p->fork);
-		p = tmp;
-		tmp = p->prev;
-		i++;
+		pthread_mutex_unlock(phi->log);
+		return ;
 	}
-	pthread_mutex_unlock(&p->fork);
-	unloked = 1;
+	*phi->die = 1;
+	if (phi->lock[0] == 1)
+		pthread_mutex_unlock(&phi->fork);
+	if (phi->lock[1] == 1)
+		pthread_mutex_unlock(&phi->prev->fork);
+	pthread_mutex_unlock(phi->log);
 }
 
 void	*ft_start_routine(void *arg)
@@ -103,20 +109,18 @@ void	*ft_start_routine(void *arg)
 	phi = arg;
 	gettimeofday(&time, NULL);
 	gettimeofday(&last, NULL);
-	i = 0;
-	while (phi->ac == 5 || i < phi->argv[4])
+	i = -1;
+	while (phi->ac == 5 || ++i < phi->argv[4])
 	{
 		if (ft_fork(phi, time))
 			break ;
 		if (ft_eat(phi, time, last))
 			break ;
 		gettimeofday(&last, NULL);
-		if (*phi->die == 1)
+		if (ft_log("%u %i is sleeping\n", phi, time))
 			break ;
-		printf("%u %i is sleeping\n", ft_get_time(time), phi->order);
 		usleep(phi->argv[3] * 1000);
-		i++;
 	}
-	ft_philo_mutex_unlock(phi, phi->argv[0]);
+	ft_philo_mutex_unlock(phi);
 	return (EXIT_SUCCESS);
 }

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_is_uint.c                                       :+:      :+:    :+:   */
+/*   libphilo.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -67,4 +67,16 @@ int	ft_is_uint(int ac, char **av)
 			return (0);
 	}
 	return (1);
+}
+
+unsigned int	ft_get_time(struct timeval time)
+{
+	unsigned int	sec;
+	int				usec;
+	struct timeval	new;
+
+	gettimeofday(&new, NULL);
+	sec = new.tv_sec - time.tv_sec;
+	usec = new.tv_usec - time.tv_usec;
+	return (((sec * 1000000) + usec) / 1000);
 }
