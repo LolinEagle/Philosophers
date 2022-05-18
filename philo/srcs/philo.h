@@ -45,7 +45,6 @@ typedef struct s_data
 	unsigned int	*die;
 	int				ac;
 	unsigned int	*argv;
-	unsigned int	*lock;
 }					t_data;
 
 // libft.c		4 functions

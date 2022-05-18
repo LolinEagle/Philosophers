@@ -12,14 +12,12 @@
 
 #include "philo.h"
 
-t_data	*ft_data_new_free(unsigned int *die, unsigned int *lock, t_data *res)
+void	*ft_data_new_free(void *ptr, void *res)
 {
-	if (die)
-		free(die);
-	if (lock)
-		free(lock);
+	if (ptr)
+		free(ptr);
 	free(res);
-	ft_putstr_fd("Error : ft_data_new fail\n", 2);
+	ft_putstr_fd("Error : init fail\n", 2);
 	return (NULL);
 }
 
@@ -27,7 +25,6 @@ t_data	*ft_data_new(int ac, unsigned int *argv)
 {
 	pthread_mutex_t	*log;
 	unsigned int	*die;
-	unsigned int	*lock;
 	t_data			*res;
 
 	res = malloc(sizeof(t_data));
@@ -35,42 +32,39 @@ t_data	*ft_data_new(int ac, unsigned int *argv)
 		return (NULL);
 	die = malloc(sizeof(int));
 	if (!die)
-		return (ft_data_new_free(NULL, NULL, res));
+		return (ft_data_new_free(NULL, res));
 	*die = 0;
-	lock = malloc(sizeof(unsigned int) * argv[0]);
-	if (!lock)
-		return (ft_data_new_free(die, NULL, res));
-	lock = memset(lock, 0, argv[0]);
 	log = malloc(sizeof(pthread_mutex_t));
 	if (!log || pthread_mutex_init(log, NULL) != 0)
-		return (ft_data_new_free(die, lock, res));
+		return (ft_data_new_free(die, res));
 	res->log = log;
 	res->die = die;
 	res->ac = ac;
 	res->argv = argv;
-	res->lock = lock;
 	return (res);
 }
 
 t_philo	*ft_philo_new(t_data *data, t_philo *prev)
 {
 	static unsigned int	i = 0;
+	unsigned int		*lock;
 	t_philo				*res;
 
 	res = malloc(sizeof(t_philo));
 	if (!res)
 		return (NULL);
+	lock = malloc(sizeof(unsigned int) * 2);
+	if (!lock)
+		return (ft_data_new_free(NULL, res));
+	lock[0] = 0;
+	lock[1] = 0;
 	if (pthread_mutex_init(&res->fork, NULL) != 0)
-	{
-		free(res);
-		ft_putstr_fd("Error : mutex init fail\n", 2);
-		return (NULL);
-	}
+		return (ft_data_new_free(lock, res));
 	res->log = data->log;
 	res->die = data->die;
 	res->ac = data->ac;
 	res->argv = data->argv;
-	res->lock = data->lock;
+	res->lock = lock;
 	i++;
 	res->order = i;
 	res->prev = prev;
@@ -78,24 +72,25 @@ t_philo	*ft_philo_new(t_data *data, t_philo *prev)
 	return (res);
 }
 
-void	ft_philo_free(t_philo *p)
+void	ft_philo_free(t_philo *phi)
 {
 	t_philo	*tmp;
 
-	pthread_mutex_destroy(p->log);
-	free(p->log);
-	free(p->die);
-	free(p->lock);
-	tmp = p->next;
+	pthread_mutex_destroy(phi->log);
+	free(phi->log);
+	free(phi->die);
+	tmp = phi->next;
 	while (tmp)
 	{
-		pthread_mutex_destroy(&p->fork);
-		free(p);
-		p = tmp;
-		tmp = p->next;
+		free(phi->lock);
+		pthread_mutex_destroy(&phi->fork);
+		free(phi);
+		phi = tmp;
+		tmp = phi->next;
 	}
-	pthread_mutex_destroy(&p->fork);
-	free(p);
+	free(phi->lock);
+	pthread_mutex_destroy(&phi->fork);
+	free(phi);
 }
 
 int	ft_log(char *str, t_philo *phi, struct timeval time)

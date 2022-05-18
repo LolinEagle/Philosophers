@@ -24,7 +24,7 @@ int	ft_fork_deadlock(t_philo *phi, struct timeval time, int bol)
 			pthread_mutex_unlock(&phi->fork);
 			return (1);
 		}
-		phi->lock[phi->order - 1] = 1;
+		phi->lock[0] = 1;
 		pthread_mutex_unlock(phi->log);
 		if (ft_log("%u %i has taken a fork\n", phi, time))
 			return (1);
@@ -48,7 +48,7 @@ int	ft_fork(t_philo *phi, struct timeval time)
 		pthread_mutex_unlock(&phi->prev->fork);
 		return (1);
 	}
-	phi->lock[phi->prev->order - 1] = 1;
+	phi->lock[1] = 1;
 	pthread_mutex_unlock(phi->log);
 	if (ft_log("%u %i has taken a fork\n", phi, time))
 		return (1);
@@ -63,7 +63,7 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 
 	i = ft_get_time(last);
 	pthread_mutex_lock(phi->log);
-	if (i > phi->argv[1] || phi->prev == NULL)
+	if ((i > phi->argv[1] || phi->prev == NULL) && *phi->die == 0)
 	{
 		*phi->die = 1;
 		printf("%u %i died\n", i, phi->order);
@@ -75,38 +75,27 @@ int	ft_eat(t_philo *phi, struct timeval time, struct timeval last)
 		return (1);
 	usleep(phi->argv[2] * 1000);
 	pthread_mutex_lock(phi->log);
-	phi->lock[phi->order - 1] = 0;
-	phi->lock[phi->prev->order - 1] = 0;
+	phi->lock[0] = 0;
+	phi->lock[1] = 0;
 	pthread_mutex_unlock(phi->log);
 	pthread_mutex_unlock(&phi->fork);
 	pthread_mutex_unlock(&phi->prev->fork);
 	return (0);
 }
 
-void	ft_philo_mutex_unlock(t_philo *phi, unsigned int argv)
+void	ft_philo_mutex_unlock(t_philo *phi)
 {
-	unsigned int	i;
-	static int		unloked = 0;
-	t_philo			*tmp;
-
 	pthread_mutex_lock(phi->log);
-	if (unloked || phi->prev == NULL)
+	if (phi->prev == NULL)
 	{
 		pthread_mutex_unlock(phi->log);
 		return ;
 	}
 	*phi->die = 1;
-	unloked = 1;
-	tmp = phi->prev;
-	i = 0;
-	while (i < argv)
-	{
-		if (phi->lock[phi->order - 1] == 1)
-			pthread_mutex_unlock(&phi->fork);
-		phi = tmp;
-		tmp = phi->prev;
-		i++;
-	}
+	if (phi->lock[0] == 1)
+		pthread_mutex_unlock(&phi->fork);
+	if (phi->lock[1] == 1)
+		pthread_mutex_unlock(&phi->prev->fork);
 	pthread_mutex_unlock(phi->log);
 }
 
@@ -132,6 +121,6 @@ void	*ft_start_routine(void *arg)
 			break ;
 		usleep(phi->argv[3] * 1000);
 	}
-	ft_philo_mutex_unlock(phi, phi->argv[0]);
+	ft_philo_mutex_unlock(phi);
 	return (EXIT_SUCCESS);
 }
