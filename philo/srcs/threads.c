@@ -91,7 +91,6 @@ void	ft_philo_mutex_unlock(t_philo *phi)
 		pthread_mutex_unlock(phi->log);
 		return ;
 	}
-	*phi->die = 1;
 	if (phi->lock[0] == 1)
 		pthread_mutex_unlock(&phi->fork);
 	if (phi->lock[1] == 1)
